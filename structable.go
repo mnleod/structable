@@ -205,6 +205,8 @@ type Recorder interface {
 	// This is conceptually similar to reflect.Value.Interface().
 	Interface() interface{}
 
+	ListColVals(bool, bool) ([]string, []interface{})
+
 	Loader
 	Haecceity
 	Saver
@@ -306,7 +308,7 @@ type WhereFunc func(desc Describer, query squirrel.SelectBuilder) (squirrel.Sele
 // of each matches the underlying type of the passed-in 'd' Recorder.
 func ListWhere(d Recorder, fn WhereFunc) ([]Recorder, error) {
 	var tn string = d.TableName()
-	var cols []string = d.Columns(false)
+	var cols []string = d.Columns(true)
 	buf := []Recorder{}
 
 	// Base query
@@ -656,6 +658,10 @@ func (s *DbRecorder) FieldReferences(withKeys bool) []interface{} {
 	}
 
 	return refs
+}
+
+func (s *DbRecorder) ListColVals(withKeys, withAutos bool) (columns []string, values []interface{}) {
+	return s.colValLists(withKeys, withAutos)
 }
 
 // colValLists returns 2 lists, the column names and values.
